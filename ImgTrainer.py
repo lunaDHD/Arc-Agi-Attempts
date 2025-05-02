@@ -124,7 +124,8 @@ def compute_loss(prediction, target):
     
     return nn.MSELoss()(padded_pred, target)
 
-def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001, version = version):
+def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001):
+    global version
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     
@@ -170,6 +171,9 @@ def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001, ver
                 print(f"Error in batch {batch_idx}: {str(e)}")
                 continue
 
+        if not os.path.exists('models/V' + str(version)):
+            os.makedirs('models/V' + str(version))
+
         torch.save(model.state_dict(), 'models/V' + str(version) + f'/mid_training_model_{epoch}.pth')
         print("\nModel saved as 'models/V" + str(version) + f"/mid_training_model_{epoch}.pth'")
         
@@ -179,7 +183,8 @@ def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001, ver
         else:
             print(f'Epoch {epoch+1} completed with no successful batches')
 
-def eval_model(model, file_name, version = version):
+def eval_model(model, file_name):
+    global version
     try:
         print("Loading data and model...")
         data = json.load(open('arc-prize-2025/arc-agi_evaluation_challenges_resampled.json'))
@@ -297,6 +302,7 @@ def eval_model(model, file_name, version = version):
         print("No valid samples were processed")
 
 def make_model(model, file_name = None):
+    global version
     print("Generating training data...")
     input_arrays, target_arrays, main_input_arrays, desired_arrays = get_arc_data()
     print(f"Generated {len(input_arrays)} training samples")
@@ -340,5 +346,5 @@ def make_model(model, file_name = None):
             print(f"Error during testing: {str(e)}")
 
 if __name__ == "__main__":
-    make_model(Model(), name)
+    #make_model(Model(), name)
     eval_model(Model(), name)
