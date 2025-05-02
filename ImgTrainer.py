@@ -7,6 +7,9 @@ from model import DigitToVector as Model
 import os
 import gc
 
+version = open("models/version.txt").read()
+name = f'models/V{version}/trained_model.pth'
+
 def generate_random_data(num_samples=100, min_size=3, max_size=10):
     input_arrays = []
     target_arrays = []
@@ -121,7 +124,7 @@ def compute_loss(prediction, target):
     
     return nn.MSELoss()(padded_pred, target)
 
-def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001):
+def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001, version = version):
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     
@@ -176,7 +179,7 @@ def train_model(model, train_dataloader, num_epochs=10, learning_rate=0.001):
         else:
             print(f'Epoch {epoch+1} completed with no successful batches')
 
-def eval_model(model, file_name):
+def eval_model(model, file_name, version = version):
     try:
         print("Loading data and model...")
         data = json.load(open('arc-prize-2025/arc-agi_evaluation_challenges_resampled.json'))
@@ -335,9 +338,6 @@ def make_model(model, file_name = None):
             print("Test Error:", compute_loss(prediction, test_output))
         except Exception as e:
             print(f"Error during testing: {str(e)}")
-
-version = open("models/version.txt").read()
-name = f'models/V{version}/trained_model.pth'
 
 if __name__ == "__main__":
     make_model(Model(), name)
